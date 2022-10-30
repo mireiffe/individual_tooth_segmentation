@@ -292,13 +292,12 @@ class Snake():
         return np.array(phis)
 
     def snake(self):
-        import time
         dt = 0.2
         mu = 2
-        reinterm = 5
+        reinterm = 3
 
         n_phis = len(self.phi0)
-        teg = [ThreeRegions(self.img) for _ in range(n_phis)]
+        tega = ThreeRegions(self.img.mean(axis=2))
         phis = np.copy(self.phi0)
 
         stop_reg = np.ones_like(self.per)
@@ -316,23 +315,15 @@ class Snake():
             if k % reinterm == 0:
                 phis = self.rein.getSDF(np.where(phis < 0, -1., 1.))
 
-            st = time.time()
             regs = np.where(phis < dist, phis - dist, 0)
             all_regs = regs.sum(axis=0)
             Fc = (- (all_regs - regs) - 1)
-            print(f'FC: {st - time.time()}')
-
 
             gx, gy = mts.imgrad(phis.transpose((1, 2, 0)))
-            st = time.time()
             Fa = - (gx.transpose((2, 0, 1)) * self.fa[..., 1] + gy.transpose((2, 0, 1)) * self.fa[..., 0])
-            print(f'Fa: {st - time.time()}')
-            st = time.time()
-            for i in range(n_phis):
-                teg[i].setting(phis[i, ...])
-            _Fs = np.array([- tg.force() for tg in teg])
+            tega.setting(phis.transpose(1, 2, 0))
+            _Fs = tega.force().transpose(2, 0, 1)
             Fs = mts.gaussfilt(_Fs, sig=1, stackdim=0)
-            print(f'Fs: {st - time.time()}')
 
             kap = mts.kappa(phis, stackdim=0)[0]
             F = 1*Fa*oma + Fs*oms + Fc*omc + mu*kap
@@ -344,7 +335,7 @@ class Snake():
             if err < 1E-04 or k > 250:
                 break
         
-            if k in [1, 2] or k % 100 == 0:
+            if k in [1, 2] or k % 1 == 0:
                 plt.figure(1)
                 plt.cla()
                 plt.imshow(self.per, 'gray')
@@ -358,7 +349,7 @@ class Snake():
 
                 plt.title('')
 
-            new_phis, teg = mts.remove_pos_lvset(new_phis, teg)
+            new_phis = mts.remove_pos_lvset(new_phis)[0]
             n_phis = len(new_phis)
             phis = new_phis
 
