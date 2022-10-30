@@ -1,0 +1,14 @@
+DEFAULT:
+  ROOT: "/home/users/mireiffe/Documents/Python/individual_teeth"
+  DEVICE: 'cuda:0'  # 'cpu', 'cuda:0' etc., only one device is supported
+DATA:
+  DIR: "dataset/samples"
+  EXT:
+    - "png"
+    - "jpg"
+    - "jpge"
+    - "jfif"
+MODEL:
+  WEIGHTS: "checkpoints/CP_teeth_seg.pth"
+EVAL:
+  DIR: "outputs"
