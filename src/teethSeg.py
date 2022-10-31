@@ -1,6 +1,8 @@
 # system libs
 import os
+import sys
 from os.path import join
+import time 
 
 # general libs
 import cv2
@@ -23,8 +25,8 @@ from .gadf import GADF
 from .reinst import ThreeRegions
 from .reinitial import Reinitial
 
-from ._networks import model
-from ._networks.dataset import ErDataset
+from .network import model
+from .network.dataset import ErDataset
 
 
 def measureWidth(per):
@@ -82,7 +84,7 @@ class PseudoER():
             os.environ["CUDA_VISIBLE_DEVICES"] = str(self.dvc_main.index)
 
             net = torch.nn.DataParallel(net, device_ids=[self.dvc_main.index])
-        print(f"Using main device <{self.dvc_main}>")
+        print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + Using main device <{self.dvc_main}>')
 
         # Load parameters
         file_ld = os.path.join(self.ROOT, self.config['MODEL']['WEIGHTS'])
@@ -93,7 +95,7 @@ class PseudoER():
             net.load_state_dict(checkpoint['encoder_state_dict'])
 
         net.to(device=self.dvc_main)
-        print(f'Model is loaded from {file_ld}')
+        print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + Model is loaded from {file_ld}')
         return net
 
     def inference(self, net, dtype=torch.float):
@@ -126,8 +128,8 @@ class InitContour():
 
         rein_all = Reinitial(width=None)
         # Setting fmm to True can speed up the evolution process
-        self.rein_w5_ssm = Reinitial(width=5, dim_stack=0, fmm=False)
         self.rein_w5 = Reinitial(width=5, dim_stack=0, fmm=False)
+        self.rein_w5_fmm = Reinitial(width=5, dim_stack=0, fmm=True)
 
         # get landmarks
         self.phi_per = rein_all.getSDF(self.per - .5)
@@ -135,14 +137,14 @@ class InitContour():
         self.phi_lmk = self.rein_w5.getSDF(.5 - (lmk[np.newaxis, ...] < 0))
 
         # bring them back
-        self.phi_back = self.bringBack(self.phi_lmk, self.per, gap=8, dt=.3, mu=2, nu=1, reinterm=10, visterm=10, tol=1E-01, max_iter=1000)
+        self.phi_back = self.bringBack(self.phi_lmk, self.per, gap=8, dt=.3, mu=2, nu=1, reinterm=10, tol=2, max_iter=500)
 
         # separate level sets 
         reg_sep = self.sepRegions(self.phi_back)
         phi_sep = self.rein_w5.getSDF(.5 - np.array(reg_sep))
 
         # initials
-        phi_init = self.evolve(phi_sep, self.per, dt=.3, mu=2, nu=1, reinterm=10, visterm=10, tol=2, max_iter=500)
+        phi_init = self.evolve(phi_sep, self.per, dt=.3, mu=2, nu=1, reinterm=10, tol=2, max_iter=500)
         self.phi0 = phi_init
         return
 
@@ -178,7 +180,7 @@ class InitContour():
                 reg_sep[_i] += np.where(lbl_back == _l, 1., 0.)
         return reg_sep
 
-    def evolve(self, phi, wall, dt, mu, nu, reinterm, visterm, tol, max_iter):
+    def evolve(self, phi, wall, dt, mu, nu, reinterm, tol, max_iter):
         phi0 = np.copy(phi)
         k = 0
         dist = 1
@@ -191,23 +193,13 @@ class InitContour():
 
             kapp = mts.kappa(phi0, stackdim=0)[0]
             phi = phi0 + dt * ( (2*Fc + mu * kapp) * (1 - wall) + (nu * wall) )
-
-            if k % visterm == 0:
-                plt.figure(1)
-                plt.cla()
-                plt.imshow(wall, 'gray')
-                for i, ph in enumerate(phi):
-                    plt.contour(ph, levels=[0], colors='lime', linewidths=1.3)
-                plt.title(f'iter = {k:d}')
-                plt.pause(.1)
+            if k % 10 == 0: print('.', end=''); sys.stdout.flush()
 
             reg0 = np.where(phi0 < 0, 1, 0)
             reg = np.where(phi < 0, 1, 0)
             err.append((reg0 + reg - 2 * reg0 * reg).sum()) 
-            print(err[-1])
             if len(err) > 4:
                 if (sum(err)  < tol) or (k > max_iter):
-                    phi = self.rein_w5_ssm.getSDF(np.where(phi < 0, -1., 1.))
                     break
                 err.pop(0)
             if k % reinterm == 0:
@@ -216,9 +208,11 @@ class InitContour():
             k += 1
             phi = mts.remove_pos_lvset(phi)[0]
             phi0 = phi
+        print('')
+        phi = self.rein_w5.getSDF(np.where(phi < 0, -1., 1.))
         return phi
 
-    def bringBack(self, phi, per, gap, dt, mu, nu, reinterm, visterm, tol, max_iter):
+    def bringBack(self, phi, per, gap, dt, mu, nu, reinterm, tol, max_iter):
         wall = mts.gaussfilt(cv2.dilate(per, np.ones((2*gap + 1, 2*gap + 1))), sig=1)
         lbl_per = label(per, background=1, connectivity=1)
         for l in np.unique(lbl_per)[1:]:
@@ -231,34 +225,27 @@ class InitContour():
         k = 0
 
         err = [999]
-
+        print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + Expanding contours to boundary of the pseudo edge-region', end='')
         while True:
             kapp = mts.kappa(phi0, stackdim=0)[0]
             phi = phi0 + dt * ( (-1 + mu * kapp) * (1 - wall)) + wall
-
-            if k % visterm == 0:
-                plt.figure(1)
-                plt.cla()
-                plt.imshow(self.per, 'gray')
-                plt.contour(phi[0], levels=[0], colors='lime', linewidths=1.3)
-                plt.title(f'iter = {k:d}')
-                plt.pause(.1)
+            if k % 10 == 0: print('.', end=''); sys.stdout.flush()
 
             # error estimation
-            err_reg = np.where(np.abs(phi) < 3, 1., 0.) 
-            err.append((err_reg * np.abs(phi - phi0)**2).sum() / np.sum(err_reg))
-            print(f'error: {err[-1]:.4f}')
+            reg0 = np.where(phi0 < 0, 1, 0)
+            reg = np.where(phi < 0, 1, 0)
+            err.append((reg0 + reg - 2 * reg0 * reg).sum()) 
             if len(err) > 4:
                 if (sum(err)  < tol) or (k > max_iter):
-                    phi = self.rein_w5_ssm.getSDF(np.where(phi < 0.2, -1., 1.))
                     break
                 err.pop(0)
 
             if k % reinterm == 0:
-                phi = self.rein_w5.getSDF(np.where(phi < 0.2, -1., 1.))
+                # phi = self.rein_w5_fmm.getSDF(np.where(phi < 0.2, -1., 1.))
+                phi = self.rein_w5_fmm.getSDF(np.where(phi < 0.2, -1., 1.))
             k += 1
             phi0 = phi
-
+        phi = self.rein_w5.getSDF(np.where(phi < 0.2, -1., 1.))
         return phi
 
 
@@ -291,13 +278,9 @@ class Snake():
 
         return np.array(phis)
 
-    def snake(self):
-        dt = 0.2
-        mu = 2
-        reinterm = 3
-
+    def snake(self, dt=0.2, mu=2, tol=2, dist=1, max_iter=100, reinterm=5):
         n_phis = len(self.phi0)
-        tega = ThreeRegions(self.img.mean(axis=2))
+        tega = ThreeRegions(self.img)
         phis = np.copy(self.phi0)
 
         stop_reg = np.ones_like(self.per)
@@ -309,7 +292,7 @@ class Snake():
         oms = (1 - oma) * (1 - stop_reg)
 
         k = 0
-        dist = 1
+        err = [999]
         while True:
             k += 1
             if k % reinterm == 0:
@@ -322,37 +305,45 @@ class Snake():
             gx, gy = mts.imgrad(phis.transpose((1, 2, 0)))
             Fa = - (gx.transpose((2, 0, 1)) * self.fa[..., 1] + gy.transpose((2, 0, 1)) * self.fa[..., 0])
             tega.setting(phis.transpose(1, 2, 0))
-            _Fs = tega.force().transpose(2, 0, 1)
+            _Fs = -tega.force().transpose(2, 0, 1)
             Fs = mts.gaussfilt(_Fs, sig=1, stackdim=0)
 
             kap = mts.kappa(phis, stackdim=0)[0]
-            F = 1*Fa*oma + Fs*oms + Fc*omc + mu*kap
+            F = Fa*oma + Fs*oms + Fc*omc + mu*kap
             new_phis = phis + dt * F
+            if k % 30 == 0: print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + iter: {k}')
 
-            err_reg = np.where(np.abs(new_phis) < 3, 1., 0.) 
-            err = (err_reg * np.abs(new_phis - phis)**2).sum() / np.sum(err_reg)
-            print(f'iter: {k}, err: {err}')
-            if err < 1E-04 or k > 250:
-                break
-        
-            if k in [1, 2] or k % 1 == 0:
-                plt.figure(1)
-                plt.cla()
-                plt.imshow(self.per, 'gray')
-                for i, ph in enumerate(new_phis):
-                    _pr = np.where(ph > 0)
-                    if len(_pr[0]) == self.m * self.n:
-                        continue
-                    plt.contour(ph, levels=[0], colors='lime')
-                plt.title(f'iter = {k:d}')
-                plt.pause(.1)
+            # if k in [1, 2] or k % 1 == 0:
+            #     plt.figure(1)
+            #     plt.cla()
+            #     # plt.imshow(self.img)
+            #     plt.imshow(self.per, 'gray')
+            #     # plt.imshow(self.per, mts.colorMapAlpha(plt), vmax=2)
+            #     # plt.imshow(oma, alpha=.8, cmap=mts.colorMapAlpha(plt))
+            #     for i, ph in enumerate(new_phis):
+            #         _pr = np.where(ph > 0)
+            #         if len(_pr[0]) == self.m * self.n:
+            #             continue
+            #         # plt.contour(ph, levels=[0], colors=[cmap(i)])
+            #         plt.contour(ph, levels=[0], colors='lime')
+            #     plt.title(f'iter = {k:d}')
+            #     # plt.show()
+            #     plt.pause(.1)
 
-                plt.title('')
+            #     plt.title('')
 
+            reg0 = np.where(phis < 0, 1, 0)
+            reg = np.where(new_phis < 0, 1, 0)
+            err.append((reg0 + reg - 2 * reg0 * reg).sum()) 
+            if len(err) > 4:
+                if (sum(err)  < tol) or (k > max_iter):
+                    break
+                err.pop(0)
             new_phis = mts.remove_pos_lvset(new_phis)[0]
             n_phis = len(new_phis)
             phis = new_phis
-
+        print('')
+        phis = self.rein.getSDF(np.where(phis < 0, -1., 1.))
         return new_phis
 
 
@@ -380,7 +371,7 @@ class TEM():
 
     def thresEnhanced(self, img, lbl, mu=0.3):
         R, G, B = img[..., 0], img[..., 1], img[..., 2]
-        en_img = np.where(R < 1E-01, 0, G / R) - mu*B
+        en_img = np.where(R < 1E-01, 0, G / (R + mts.eps)) - mu*B
 
         dist_reg = en_img >= 1E-03
 

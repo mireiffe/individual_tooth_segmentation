@@ -42,15 +42,16 @@ class ThreeRegions():
         ker = np.ones((delt, delt))
         band = np.where(np.abs(self.phi) < 2, 1., 0.)
         
-        img_i = self.img * self.reg2_i.transpose(2, 0, 1)
-        img_o = self.img * self.reg2_o.transpose(2, 0, 1)
+        eximg = np.expand_dims(self.img, -1)
+        img_i = eximg * np.expand_dims(self.reg2_i, 2)
+        img_o = eximg * np.expand_dims(self.reg2_o, 2)
 
-        sum_reg_i = np.where(band, cv2.filter2D(self.reg2_i.astype(int), -1, ker), 1)
-        sum_reg_o = np.where(band, cv2.filter2D(self.reg2_o.astype(int), -1, ker), 1)
-        self.mu3_i = cv2.filter2D(img_i.transpose(1, 2, 0), -1, ker) * band / (sum_reg_i + mts.eps)
-        self.mu3_o = cv2.filter2D(img_o.transpose(1, 2, 0), -1, ker) * band / (sum_reg_o + mts.eps)
-        _mu3_i_sq = cv2.filter2D(img_i.transpose(1, 2, 0)**2, -1, ker) * band / (sum_reg_i + mts.eps)
-        _mu3_o_sq = cv2.filter2D(img_o.transpose(1, 2, 0)**2, -1, ker) * band / (sum_reg_o + mts.eps)
+        sum_reg_i = cv2.filter2D(self.reg2_i.astype(int), -1, ker)
+        sum_reg_o = cv2.filter2D(self.reg2_o.astype(int), -1, ker)
+        self.mu3_i = cv2.filter2D(img_i.sum(axis=2), -1, ker) * band / (sum_reg_i*3 + mts.eps)
+        self.mu3_o = cv2.filter2D(img_o.sum(axis=2), -1, ker) * band / (sum_reg_o*3 + mts.eps)
+        _mu3_i_sq = cv2.filter2D(np.power(img_i, 2).sum(axis=2), -1, ker) * band / (sum_reg_i*3 + mts.eps)
+        _mu3_o_sq = cv2.filter2D(np.power(img_o, 2).sum(axis=2), -1, ker) * band / (sum_reg_o*3 + mts.eps)
         self.var3_i = np.abs(_mu3_i_sq - self.mu3_i**2)
         self.var3_o = np.abs(_mu3_o_sq - self.mu3_o**2)
 
@@ -59,7 +60,7 @@ class ThreeRegions():
         return np.exp(-(X - mu)**2 / 2 / (sig + mts.eps)**2) / np.sqrt(2 * np.pi) / (sig + mts.eps)
 
     def force(self):
-        _img = self.img[..., None]
+        _img = self.img.mean(axis=2)[..., None]
 
         P3_i = self.funPDF(_img, self.mu3_i, self.var3_i**.5)
         P3_o = self.funPDF(_img, self.mu3_o, self.var3_o**.5)

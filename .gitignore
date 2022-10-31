@@ -1,3 +1,5 @@
 outputs/
 dataset/
 checkpoints/
+.vscode/
+__pycache__

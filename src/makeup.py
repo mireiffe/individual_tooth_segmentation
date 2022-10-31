@@ -1,5 +1,6 @@
 # system libs
 from os.path import join
+import time 
 
 # general libs
 import numpy as np
@@ -21,7 +22,7 @@ class TeethSeg():
         self.sts = sts
         self.config = config
         
-        print(f'image {num_img}, initiating...')
+        print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] Image {num_img}, initiating...')
 
         # set an empty dictionary
         self.path_dict = join(dir_result, f'{num_img:06d}.pth')
@@ -34,7 +35,7 @@ class TeethSeg():
         '''
         Inference of a pseudo edge-region using a deep neural net
         '''
-        print(f'\t- obtaining pseudo edge-region...')
+        print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] Step1: Obtaining pseudo edge-region...')
 
         PER = PseudoER(self.config, self.num_img)
         inpt, oupt = PER.getEr()             # network inference
@@ -52,7 +53,7 @@ class TeethSeg():
         return 0
 
     def initContour(self):
-        print(f'\t- refining pre-edge region...')
+        print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] Step2: Refining pre-edge region...')
         img, per0 = self._dt['img'], self._dt['per0']
         
         initC = InitContour(img, per0)
@@ -65,7 +66,7 @@ class TeethSeg():
         return 0
 
     def snake(self):
-        print(f'\t- contour evolution...')
+        print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] Step3: Contour evolution...')
         img, per, phi0 = self._dt['img'], self._dt['per'], self._dt['phi0']
 
         SNK = Snake(img, per, phi0)
@@ -80,15 +81,13 @@ class TeethSeg():
         return 0
 
     def tem(self):
-        print(f'\tindentifying regions...')
+        print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] Step4: Indentifying regions...')
         img, phi_res = self._dt['img'], self._dt['phi_res']
-
         IR = TEM(img, phi_res)
 
         self._dt.update({'lbl_reg': IR.lbl_reg, 'res': IR.res})
         mts.saveFile(self._dt, self.path_dict)
-
-        self._showSaveMax(img, 'result.png', contour=IR.res)
+        self._showSaveMax(img, 'result', contour=IR.res)
 
     def _showSaveMax(self, obj, name, face=None, contour=None):
         fig = plt.figure()
@@ -98,10 +97,10 @@ class TeethSeg():
         ax.imshow(obj)
         if face is not None:
             _res = np.where(face < 0, 0, face)
-            plt.imshow(_res, alpha=.4, cmap='rainbow_alpha')
+            plt.imshow(_res, alpha=.7, cmap=mts.rainbow_alpha)
         if contour is not None:
             Rein = Reinitial(dt=.1)
-            ReinKapp = ReinitialKapp(iter=5, mu=1)
+            ReinKapp = ReinitialKapp(iter=5, mu=2)
             clrs = ['lime'] * 100
             for i in range(int(np.max(contour))):
                 _reg = np.where(contour == i+1, -1., 1.)
@@ -110,6 +109,6 @@ class TeethSeg():
                     _reg = ReinKapp.getSDF(_reg)
                 resres.append(_reg)
                 plt.contour(_reg, levels=[0], colors=clrs[i], linewidths=2)
-            self.sts.savecfg(name)
-            plt.close(fig)
+        self.sts.savecfg(name + '.png')
+        plt.close(fig)
         return resres
