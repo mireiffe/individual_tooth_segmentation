@@ -2,11 +2,11 @@
 
 ## Summary
 
-| Image | Ground truth | Proposed |
-|:-------:|:-------:|:-------:|
-| ![gt0](<samples/999999.png>) | ![gt0](<figures/gt7.png>) | ![img0](<figures/proposed7.png>) |
-
 An implementation for individual tooth segmentation method in human teeth image taken outside of oral cavity by an optical camera. 
+
+| Ground truth | Proposed |
+|:-------:|:-------:|
+| ![gt1](<figures/gt1.png>) | ![img1](<figures/Proposed1.png>) |
 
 [CMI Lab.](http://parter.kaist.ac.kr/), Department of Mathematical Sciences, KAIST.
 
