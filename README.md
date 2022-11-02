@@ -6,7 +6,8 @@ An implementation for individual tooth segmentation method in human teeth image 
 
 | Ground truth | Proposed |
 |:-------:|:-------:|
-| ![gt1](<figures/gt1.png>) | ![img1](<figures/proposed1.png>) |
+| <img src="figures/gt1.png" width="300"> | <img src="figures/gt1.png" width="300"> |
+
 
 [CMI Lab.](http://parter.kaist.ac.kr/), Department of Mathematical Sciences, KAIST.
 
@@ -84,16 +85,15 @@ In this repository, we compare the proposed method with only one [benchmark meth
 
 | Image ID | Ground truth | Mask R-CNN | Proposed |
 |:-------:|:-------:|:-------:|:-------:|
-| 01 | ![gt0](<figures/gt0.png>) | ![rcnn0](<figures/mrcnn_0.png>) | ![img0](<figures/proposed0.png>) |
-| 02 | ![gt1](<figures/gt1.png>) | ![rcnn1](<figures/mrcnn_1.png>) | ![img1](<figures/proposed1.png>) |
-| 03 | ![gt2](<figures/gt2.png>) | ![rcnn2](<figures/mrcnn_2.png>) | ![img2](<figures/proposed2.png>) |
-| 04 | ![gt3](<figures/gt3.png>) | ![rcnn3](<figures/mrcnn_3.png>) | ![img3](<figures/proposed3.png>) |
-| 05 | ![gt4](<figures/gt4.png>) | ![rcnn4](<figures/mrcnn_4.png>) | ![img4](<figures/proposed4.png>) |
-| 06 | ![gt5](<figures/gt5.png>) | ![rcnn5](<figures/mrcnn_5.png>) | ![img5](<figures/proposed5.png>) |
-| 07 | ![gt6](<figures/gt6.png>) | ![rcnn6](<figures/mrcnn_6.png>) | ![img6](<figures/proposed6.png>) |
-| 08 | ![gt7](<figures/gt7.png>) | ![rcnn7](<figures/mrcnn_7.png>) | ![img7](<figures/proposed7.png>) |
-| 09 | ![gt8](<figures/gt8.png>) | ![rcnn8](<figures/mrcnn_8.png>) | ![img8](<figures/proposed8.png>) |
-| 10 | ![gt9](<figures/gt9.png>) | ![rcnn9](<figures/mrcnn_9.png>) | ![img9](<figures/proposed9.png>) |
+| 01 | <img src="figures/gt1.png" width="300"> | <img src="figures/mrcnn_1.png" width="300"> | <img src="figures/proposed1.png" width="300"> |
+| 02 | <img src="figures/gt2.png" width="300"> | <img src="figures/mrcnn_2.png" width="300"> | <img src="figures/proposed2.png" width="300"> |
+| 03 | <img src="figures/gt3.png" width="300"> | <img src="figures/mrcnn_3.png" width="300"> | <img src="figures/proposed3.png" width="300"> |
+| 04 | <img src="figures/gt4.png" width="300"> | <img src="figures/mrcnn_4.png" width="300"> | <img src="figures/proposed4.png" width="300"> |
+| 05 | <img src="figures/gt5.png" width="300"> | <img src="figures/mrcnn_5.png" width="300"> | <img src="figures/proposed5.png" width="300"> |
+| 06 | <img src="figures/gt6.png" width="300"> | <img src="figures/mrcnn_6.png" width="300"> | <img src="figures/proposed6.png" width="300"> |
+| 07 | <img src="figures/gt7.png" width="300"> | <img src="figures/mrcnn_7.png" width="300"> | <img src="figures/proposed7.png" width="300"> |
+| 08 | <img src="figures/gt8.png" width="300"> | <img src="figures/mrcnn_8.png" width="300"> | <img src="figures/proposed8.png" width="300"> |
+| 09 | <img src="figures/gt9.png" width="300"> | <img src="figures/mrcnn_9.png" width="300"> | <img src="figures/proposed9.png" width="300"> |
 
 Image files are available in the [figures](figures) directory.
 
