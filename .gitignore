@@ -1,5 +1,7 @@
 outputs/
-dataset/
+# dataset/
 checkpoints/
 .vscode/
 __pycache__
+
+testset*

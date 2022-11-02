@@ -1,6 +1,6 @@
 DEFAULT:
-  ROOT: "/home/users/mireiffe/Documents/Python/individual_teeth"
-  DEVICE: 'cuda:0'  # 'cpu', 'cuda:0' etc., only one device is supported
+  ROOT: "."
+  DEVICE: 'cpu'  # 'cpu', 'cuda:0' etc., only one device is supported
 DATA:
   DIR: "dataset/samples"
   EXT:
@@ -12,3 +12,6 @@ MODEL:
   WEIGHTS: "checkpoints/CP_teeth_seg.pth"
 EVAL:
   DIR: "outputs"
+RESIZE: False # for efficient computaion. 
+              # This option could speed up the entire process,
+              # but segmentation quality will be lowered.

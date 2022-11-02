@@ -7,9 +7,6 @@ import time
 # general libs
 import cv2
 import numpy as np
-import matplotlib
-# matplotlib.use(backend='Qt5Agg')
-import matplotlib.pyplot as plt
 
 # Pytorch
 import torch
@@ -82,18 +79,28 @@ class PseudoER():
         if self.dvc_main.type == 'cuda':
             os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
             os.environ["CUDA_VISIBLE_DEVICES"] = str(self.dvc_main.index)
-
             net = torch.nn.DataParallel(net, device_ids=[self.dvc_main.index])
-        print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + Using main device <{self.dvc_main}>')
+            print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + Using main device <{self.dvc_main}>')
 
-        # Load parameters
-        file_ld = os.path.join(self.ROOT, self.config['MODEL']['WEIGHTS'])
-        checkpoint = torch.load(file_ld, map_location='cpu')
-        try:
-            net.load_state_dict(checkpoint['net_state_dict'])
-        except KeyError:
-            net.load_state_dict(checkpoint['encoder_state_dict'])
+            # Load parameters
+            file_ld = os.path.join(self.ROOT, self.config['MODEL']['WEIGHTS'])
+            checkpoint = torch.load(file_ld, map_location='cpu')
+            try:
+                net.load_state_dict(checkpoint['net_state_dict'])
+            except KeyError:
+                net.load_state_dict(checkpoint['encoder_state_dict'])
+        else:
+            _net = torch.nn.DataParallel(net)
+            print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + Using main device <{self.dvc_main}>')
 
+            # Load parameters
+            file_ld = os.path.join(self.ROOT, self.config['MODEL']['WEIGHTS'])
+            checkpoint = torch.load(file_ld, map_location='cpu')
+            try:
+                _net.load_state_dict(checkpoint['net_state_dict'])
+            except KeyError:
+                _net.load_state_dict(checkpoint['encoder_state_dict'])
+            net = _net.module.to(device='cpu')
         net.to(device=self.dvc_main)
         print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + Model is loaded from {file_ld}')
         return net
@@ -126,7 +133,7 @@ class InitContour():
             self.per, rad=max(round(self.wid_er / 2), 1),
             kernel_type='circular')
 
-        rein_all = Reinitial(width=None)
+        rein_all = Reinitial(width=None, fmm=True)
         # Setting fmm to True can speed up the evolution process
         self.rein_w5 = Reinitial(width=5, dim_stack=0, fmm=False)
         self.rein_w5_fmm = Reinitial(width=5, dim_stack=0, fmm=True)
@@ -134,17 +141,17 @@ class InitContour():
         # get landmarks
         self.phi_per = rein_all.getSDF(self.per - .5)
         lmk = self.getLandMarks(self.phi_per)
-        self.phi_lmk = self.rein_w5.getSDF(.5 - (lmk[np.newaxis, ...] < 0))
+        self.phi_lmk = self.rein_w5_fmm.getSDF(.5 - (lmk[np.newaxis, ...] < 0))
 
         # bring them back
-        self.phi_back = self.bringBack(self.phi_lmk, self.per, gap=8, dt=.3, mu=2, nu=1, reinterm=10, tol=2, max_iter=500)
+        self.phi_back = self.bringBack(self.phi_lmk, self.per, gap=8, dt=.3, mu=2, nu=1, reinterm=3, tol=2, max_iter=500)
 
         # separate level sets 
         reg_sep = self.sepRegions(self.phi_back)
         phi_sep = self.rein_w5.getSDF(.5 - np.array(reg_sep))
 
         # initials
-        phi_init = self.evolve(phi_sep, self.per, dt=.3, mu=2, nu=1, reinterm=10, tol=2, max_iter=500)
+        phi_init = self.evolve(phi_sep, self.per, dt=.3, mu=2, nu=1, reinterm=3, tol=2, max_iter=100)
         self.phi0 = phi_init
         return
 
@@ -192,7 +199,7 @@ class InitContour():
             Fc = (- (all_regs - regs) - 1)
 
             kapp = mts.kappa(phi0, stackdim=0)[0]
-            phi = phi0 + dt * ( (2*Fc + mu * kapp) * (1 - wall) + (nu * wall) )
+            phi = phi0 + dt * ( (Fc + mu * kapp) * (1 - wall) + (nu * wall) )
             if k % 10 == 0: print('.', end=''); sys.stdout.flush()
 
             reg0 = np.where(phi0 < 0, 1, 0)
@@ -203,7 +210,7 @@ class InitContour():
                     break
                 err.pop(0)
             if k % reinterm == 0:
-                phi = self.rein_w5.getSDF(np.where(phi < 0.2, -1., 1.))
+                phi = self.rein_w5_fmm.getSDF(np.where(phi < 0, -1., 1.))
 
             k += 1
             phi = mts.remove_pos_lvset(phi)[0]
@@ -278,7 +285,7 @@ class Snake():
 
         return np.array(phis)
 
-    def snake(self, dt=0.2, mu=2, tol=2, dist=1, max_iter=100, reinterm=5):
+    def snake(self, dt=0.2, mu=2, tol=2, dist=1, max_iter=30, reinterm=5):
         n_phis = len(self.phi0)
         tega = ThreeRegions(self.img)
         phis = np.copy(self.phi0)
@@ -311,26 +318,7 @@ class Snake():
             kap = mts.kappa(phis, stackdim=0)[0]
             F = Fa*oma + Fs*oms + Fc*omc + mu*kap
             new_phis = phis + dt * F
-            if k % 30 == 0: print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + iter: {k}')
-
-            # if k in [1, 2] or k % 1 == 0:
-            #     plt.figure(1)
-            #     plt.cla()
-            #     # plt.imshow(self.img)
-            #     plt.imshow(self.per, 'gray')
-            #     # plt.imshow(self.per, mts.colorMapAlpha(plt), vmax=2)
-            #     # plt.imshow(oma, alpha=.8, cmap=mts.colorMapAlpha(plt))
-            #     for i, ph in enumerate(new_phis):
-            #         _pr = np.where(ph > 0)
-            #         if len(_pr[0]) == self.m * self.n:
-            #             continue
-            #         # plt.contour(ph, levels=[0], colors=[cmap(i)])
-            #         plt.contour(ph, levels=[0], colors='lime')
-            #     plt.title(f'iter = {k:d}')
-            #     # plt.show()
-            #     plt.pause(.1)
-
-            #     plt.title('')
+            if k % 10 == 0: print(f'[{time.strftime("%y%m%d-%H:%M:%S", time.localtime(time.time()))}] + iter: {k}')
 
             reg0 = np.where(phis < 0, 1, 0)
             reg = np.where(new_phis < 0, 1, 0)
@@ -342,7 +330,6 @@ class Snake():
             new_phis = mts.remove_pos_lvset(new_phis)[0]
             n_phis = len(new_phis)
             phis = new_phis
-        print('')
         phis = self.rein.getSDF(np.where(phis < 0, -1., 1.))
         return new_phis
 
