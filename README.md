@@ -24,7 +24,8 @@ An implementation for individual tooth segmentation method in human teeth image 
 
 You can download pretrained parameters as pytorch checkpoint file.
 
-[Download](http://parter.kaist.ac.kr/colee/work/segmentation22/CP_teeth_seg.pth)
+<http://parter.kaist.ac.kr/colee/work/segmentation22/CP_teeth_seg.pth>\
+(You may right-click and copy & paste the link into the address bar.)
 
 ## Configuration file
 
