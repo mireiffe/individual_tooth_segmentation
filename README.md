@@ -2,7 +2,7 @@
 
 ## Summary
 
-An implementation for individual tooth segmentation method in human teeth image taken outside of oral cavity by an optical camera. 
+An implementation for individual tooth segmentation method in human teeth image taken outside oral cavity by an optical camera. 
 
 | Ground truth | Proposed |
 |:-------:|:-------:|
@@ -24,7 +24,7 @@ An implementation for individual tooth segmentation method in human teeth image 
 
 You can download pretrained parameters as pytorch checkpoint file.
 
-[Download (TBU)]()
+[Download](http://parter.kaist.ac.kr/colee/work/segmentation22/CP_teeth_seg.pth)
 
 ## Configuration file
 
@@ -32,7 +32,7 @@ Set path of root directory, checkpoint, and input images in [config](config/defa
 
 ## One-click tutorial
 
-After download the pytorch checkpoint file, one can quick start with following command using a sample [test image](samples/999999.png):
+After downloading the pytorch checkpoint file, one can start quickly with following command using a sample [test image](samples/999999.png):
 
 ```
 git clone https://github.com/mireiffe/individual_tooth_segmentation.git
@@ -46,11 +46,11 @@ python main.py --All
 ## Test images
 
 - 10 optical teeth images taken outside oral cavity.
-- In consultation with a dentist, we generate ground truths for the test images.
+- In consultation with a dentist, we generated ground truths for the test images.
 
 ## Benchmark method
 
-In this repository, we compare the proposed method with only one [benchmark method](https://ieeexplore.ieee.org/abstract/document/9065216) based on the Mask R-CNN. There are more benchmark methods and comparisons in the paper.
+In this repository, we compare the proposed method with only one [benchmark method](https://ieeexplore.ieee.org/abstract/document/9065216) based on the Mask R-CNN. There are more benchmark methods and comparisons in [[1]]().
 
 ## Evaluation
 
@@ -70,7 +70,7 @@ In this repository, we compare the proposed method with only one [benchmark meth
     
     | Image ID | Mask R-CNN | Proposed |
     |:--------:|------|----------|
-    | 01 | 0.9508 (13) | **0.9642** (**13**)|
+    | 01 | 0.9508 (**13**) | **0.9642** (**13**)|
     | 02 | 0.9515 (6)  | **0.9732** (**7**)|
     | 03 | 0.9435 (12) | **0.9509** (**16**)|
     | 04 | 0.7874 (11) | **0.9341** (**16**)|
@@ -85,6 +85,7 @@ In this repository, we compare the proposed method with only one [benchmark meth
 
 | Image ID | Ground truth | Mask R-CNN | Proposed |
 |:-------:|:-------:|:-------:|:-------:|
+| 01 | <img src="figures/gt0.png" width="300"> | <img src="figures/mrcnn_0.png" width="300"> | <img src="figures/proposed0.png" width="300"> |
 | 01 | <img src="figures/gt1.png" width="300"> | <img src="figures/mrcnn_1.png" width="300"> | <img src="figures/proposed1.png" width="300"> |
 | 02 | <img src="figures/gt2.png" width="300"> | <img src="figures/mrcnn_2.png" width="300"> | <img src="figures/proposed2.png" width="300"> |
 | 03 | <img src="figures/gt3.png" width="300"> | <img src="figures/mrcnn_3.png" width="300"> | <img src="figures/proposed3.png" width="300"> |
