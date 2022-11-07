@@ -50,7 +50,7 @@ python main.py --All
 
 ## Benchmark method
 
-In this repository, we compare the proposed method with only one [benchmark method](https://ieeexplore.ieee.org/abstract/document/9065216) based on the Mask R-CNN. There are more benchmark methods and comparisons in [[1]]().
+In this repository, we compare the proposed method with only one [benchmark method](https://ieeexplore.ieee.org/abstract/document/9065216) based on the Mask R-CNN. There are more benchmark methods and comparisons in [[1]](#references).
 
 ## Evaluation
 
