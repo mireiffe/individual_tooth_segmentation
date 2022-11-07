@@ -32,7 +32,7 @@ Set path of root directory, checkpoint, and input images in [config](config/defa
 
 ## One-click tutorial
 
-After downloading the pytorch checkpoint file, one can start quickly with following command using a sample [test image](samples/999999.png):
+After downloading the pytorch checkpoint file, one can start quickly with following command using a sample [test image](dataset/samples/999999.png):
 
 ```
 git clone https://github.com/mireiffe/individual_tooth_segmentation.git
