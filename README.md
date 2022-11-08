@@ -87,15 +87,15 @@ In this repository, we compare the proposed method with only one [benchmark meth
 | Image ID | Ground truth | Mask R-CNN | Proposed |
 |:-------:|:-------:|:-------:|:-------:|
 | 01 | <img src="figures/gt0.png" width="300"> | <img src="figures/mrcnn_0.png" width="300"> | <img src="figures/proposed0.png" width="300"> |
-| 01 | <img src="figures/gt1.png" width="300"> | <img src="figures/mrcnn_1.png" width="300"> | <img src="figures/proposed1.png" width="300"> |
-| 02 | <img src="figures/gt2.png" width="300"> | <img src="figures/mrcnn_2.png" width="300"> | <img src="figures/proposed2.png" width="300"> |
-| 03 | <img src="figures/gt3.png" width="300"> | <img src="figures/mrcnn_3.png" width="300"> | <img src="figures/proposed3.png" width="300"> |
-| 04 | <img src="figures/gt4.png" width="300"> | <img src="figures/mrcnn_4.png" width="300"> | <img src="figures/proposed4.png" width="300"> |
-| 05 | <img src="figures/gt5.png" width="300"> | <img src="figures/mrcnn_5.png" width="300"> | <img src="figures/proposed5.png" width="300"> |
-| 06 | <img src="figures/gt6.png" width="300"> | <img src="figures/mrcnn_6.png" width="300"> | <img src="figures/proposed6.png" width="300"> |
-| 07 | <img src="figures/gt7.png" width="300"> | <img src="figures/mrcnn_7.png" width="300"> | <img src="figures/proposed7.png" width="300"> |
-| 08 | <img src="figures/gt8.png" width="300"> | <img src="figures/mrcnn_8.png" width="300"> | <img src="figures/proposed8.png" width="300"> |
-| 09 | <img src="figures/gt9.png" width="300"> | <img src="figures/mrcnn_9.png" width="300"> | <img src="figures/proposed9.png" width="300"> |
+| 02 | <img src="figures/gt1.png" width="300"> | <img src="figures/mrcnn_1.png" width="300"> | <img src="figures/proposed1.png" width="300"> |
+| 03 | <img src="figures/gt2.png" width="300"> | <img src="figures/mrcnn_2.png" width="300"> | <img src="figures/proposed2.png" width="300"> |
+| 04 | <img src="figures/gt3.png" width="300"> | <img src="figures/mrcnn_3.png" width="300"> | <img src="figures/proposed3.png" width="300"> |
+| 05 | <img src="figures/gt4.png" width="300"> | <img src="figures/mrcnn_4.png" width="300"> | <img src="figures/proposed4.png" width="300"> |
+| 06 | <img src="figures/gt5.png" width="300"> | <img src="figures/mrcnn_5.png" width="300"> | <img src="figures/proposed5.png" width="300"> |
+| 07 | <img src="figures/gt6.png" width="300"> | <img src="figures/mrcnn_6.png" width="300"> | <img src="figures/proposed6.png" width="300"> |
+| 08 | <img src="figures/gt7.png" width="300"> | <img src="figures/mrcnn_7.png" width="300"> | <img src="figures/proposed7.png" width="300"> |
+| 09 | <img src="figures/gt8.png" width="300"> | <img src="figures/mrcnn_8.png" width="300"> | <img src="figures/proposed8.png" width="300"> |
+| 10 | <img src="figures/gt9.png" width="300"> | <img src="figures/mrcnn_9.png" width="300"> | <img src="figures/proposed9.png" width="300"> |
 
 Image files are available in the [figures](figures) directory.
 
