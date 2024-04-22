@@ -6,7 +6,7 @@ An implementation for individual tooth segmentation method in human teeth image 
 
 | Ground truth | Proposed |
 |:-------:|:-------:|
-| <img src="figures/gt1.png" width="300"> | <img src="figures/gt1.png" width="300"> |
+| <img src="figures/gt1.png" width="300"> | <img src="figures/proposed1.png" width="300"> |
 
 
 [CMI Lab.](http://parter.kaist.ac.kr/), Department of Mathematical Sciences, KAIST.
