@@ -62,7 +62,7 @@ In this repository, we compare the proposed method with only one [benchmark meth
 
 - The 12 front teeth
 
-    We calculate F1-score for 12 front teeth and uses $mF1$ as the evaluation metric, which is defined as the average F1-score for the 12 front teeth.
+    We calculate F1-score for 12 front teeth and use $mF1$ as the evaluation metric, which is defined as the average F1-score for the 12 front teeth.
     
     - Teeth number: 11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, and 43\
     [(FDI World Dental Federation notation.)](https://en.wikipedia.org/wiki/FDI_World_Dental_Federation_notation)
@@ -100,6 +100,6 @@ In this repository, we compare the proposed method with only one [benchmark meth
 Image files are available in the [figures](figures) directory.
 
 ## References
-1. Kim, Seongeun and Lee, Chang-Ock, *Individual Tooth Segmentation in Human Teeth Images Using Pseudo Edge-Region Obtained by Deep Neural Networks,* http://dx.doi.org/10.2139/ssrn.4159811.
+1. Kim, Seongeun and Lee, Chang-Ock, *Individual Tooth Segmentation in Human Teeth Images Using Pseudo Edge-Region Obtained by Deep Neural Networks,* Signal Processing: Image Communication, Volume 120, 2024, [https://doi.org/10.1016/j.image.2023.117076](https://doi.org/10.1016/j.image.2023.117076).
 
 2. G. Zhu, Z. Piao, S. C. Kim, *Tooth detection and segmentation with mask R-CNN*, in: 2020 International Conference on Artificial Intelligence in Information and Communication (ICAIIC), 2020, pp. 70–72.
