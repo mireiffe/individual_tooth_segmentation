@@ -15,10 +15,9 @@ An implementation for individual tooth segmentation method in human teeth image 
 
 ## Requirements
 
-- Python >= 3.7
-- Pytorch >= 1.9.0
-- Opencv
-- yaml
+- Python >= 3.9
+- [uv](https://docs.astral.sh/uv/) - Fast Python package installer and resolver
+- All dependencies are managed via `pyproject.toml`
 
 ## Neural network parameters
 
@@ -33,12 +32,39 @@ Set path of root directory, checkpoint, and input images in [config](config/defa
 
 ## One-click tutorial
 
-After downloading the pytorch checkpoint file, one can start quickly with following command using a sample [test image](dataset/samples/999999.png):
+After downloading the pytorch checkpoint file, one can start quickly with following commands using a sample [test image](dataset/samples/999999.png):
 
+### Install uv (if not already installed)
+
+```bash
+# On macOS and Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
+
+### Run the application
+
+```bash
 git clone https://github.com/mireiffe/individual_tooth_segmentation.git
 cd individual_tooth_segmentation
-python main.py --All
+
+# Install dependencies and run with uv
+uv run main.py --ALL
+```
+
+The `uv run` command automatically:
+
+- Creates a virtual environment
+- Installs all dependencies from `pyproject.toml`
+- Runs the application
+
+For manual environment setup:
+
+```bash
+uv sync           # Install dependencies
+uv run main.py --ALL  # Run the application
 ```
 
 

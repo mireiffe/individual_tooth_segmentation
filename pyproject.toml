@@ -1,0 +1,17 @@
+[project]
+name = "individual-tooth-segmentation"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "matplotlib",
+    "numpy<2",
+    "opencv-python",
+    "pyyaml",
+    "scikit-fmm>=2025.1.29",
+    "scikit-image>=0.24.0",
+    "scipy",
+    "torch==2.0.1",
+    "torchvision==0.15.2",
+]

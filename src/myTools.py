@@ -202,9 +202,11 @@ def colorMapAlpha(_plt, cmap='jet', _name='alpha') -> None:
     color_array[:,-1] = np.linspace(0.0, 1.0, ncolors)
     # create a colormap object
     from matplotlib.colors import LinearSegmentedColormap
+    import matplotlib
     map_object = LinearSegmentedColormap.from_list(name=name, colors=color_array)
-    # register this new colormap with matplotlib
-    _plt.register_cmap(cmap=map_object)
+    # register this new colormap with matplotlib (only if not already registered)
+    if name not in matplotlib.colormaps:
+        matplotlib.colormaps.register(cmap=map_object)
     return name
 
 jet_alpha = colorMapAlpha(plt, cmap='jet')
